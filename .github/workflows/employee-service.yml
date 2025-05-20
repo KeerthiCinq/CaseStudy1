@@ -17,6 +17,22 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
+      - name: Set BRANCH environment variable
+        run: echo "BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
+
+      - name: Set environment dynamically
+        id: set-env
+        run: |
+          if [[ "${BRANCH}" == "main" ]]; then
+            echo "env=prod" >> $GITHUB_OUTPUT
+          elif [[ "${BRANCH}" == "qa" ]]; then
+            echo "env=qa" >> $GITHUB_OUTPUT
+          elif [[ "${BRANCH}" == "dev" ]]; then
+            echo "env=dev" >> $GITHUB_OUTPUT
+          else
+            echo "No match found for branch"
+          fi
         
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -54,5 +70,8 @@ jobs:
 
       - name: Deploy Employee Service with Helm
         run: |
-          helm upgrade --install employee-service helmcharts/employee-service \
+          ClusterEnv=${{ steps.set-env.outputs.env }}
+          NAMESPACE=${ClusterEnv}
+          helm upgrade --install employee-service helmcharts/employee-service \ 
+            --namespace ${NAMESPACE} \
             --set image.tag=employee-service-${{ github.sha }}

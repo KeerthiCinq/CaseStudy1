@@ -20,7 +20,7 @@ jobs:
 
       - name: Set BRANCH environment variable
         run: echo "BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
-        
+
       - name: Set environment dynamically
         id: set-env
         run: |
@@ -70,8 +70,8 @@ jobs:
 
       - name: Deploy API Gateway with Helm
         run: |
-          ENV=${{ steps.set-env.outputs.env }}
-          NAMESPACE=$ENV
+          ClusterEnv=${{ steps.set-env.outputs.env }}
+          NAMESPACE=${ClusterEnv}
           helm upgrade --install api-gateway helmcharts/api-gateway \
-            --namespace $NAMESPACE
+            --namespace ${NAMESPACE} \
             --set image.tag=api-gateway-${{ github.sha }}
