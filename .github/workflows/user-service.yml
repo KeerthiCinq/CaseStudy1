@@ -2,6 +2,10 @@ name: Build and Deploy User Service
 
 on:
   push:
+    branches:
+      - main
+      - qa
+      - develop
     paths:
       - 'user-service/**'       # Trigger when files in api-gateway folder change
       - 'helmcharts/user-service/**'       

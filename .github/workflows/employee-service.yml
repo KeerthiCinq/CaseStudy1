@@ -2,6 +2,10 @@ name: Build and Deploy Employee Service
 
 on:
   push:
+    branches:
+      - main
+      - qa
+      - develop
     paths:
       - 'employee-service/**'       # Trigger when files in api-gateway folder change
       - 'helmcharts/employee-service/**'        

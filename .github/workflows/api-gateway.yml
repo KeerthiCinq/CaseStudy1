@@ -2,6 +2,10 @@ name: Build and Deploy API Gateway
 
 on:
   push:
+    branches:
+      - main
+      - qa
+      - develop
     paths:
       - 'api-gateway/**'       # Trigger when files in api-gateway folder change
       - 'helmcharts/api-gateway/**'        
@@ -13,6 +17,17 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
+      - name: Set environment dynamically
+        id: set-env
+        run: |
+          if [[ "${BRANCH}" == "main" ]]; then
+            echo "env=prod" >> $GITHUB_OUTPUT
+          elif [[ "${BRANCH}" == "qa" ]]; then
+            echo "env=qa" >> $GITHUB_OUTPUT
+          else
+            echo "env=dev" >> $GITHUB_OUTPUT
+          fi
         
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -50,5 +65,8 @@ jobs:
 
       - name: Deploy API Gateway with Helm
         run: |
+          ENV=${{ steps.set-env.outputs.env }}
+          NAMESPACE=$ENV
           helm upgrade --install api-gateway helmcharts/api-gateway \
+            --namespace $NAMESPACE
             --set image.tag=api-gateway-${{ github.sha }}
