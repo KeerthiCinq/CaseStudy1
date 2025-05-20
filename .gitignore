@@ -271,3 +271,5 @@ $RECYCLE.BIN/
 .springBeans
 .sts4-cache
 
+##policydoc
+iam_policy.json
