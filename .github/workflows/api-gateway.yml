@@ -5,7 +5,7 @@ on:
     branches:
       - main
       - qa
-      - develop
+      - dev
     paths:
       - 'api-gateway/**'       # Trigger when files in api-gateway folder change
       - 'helmcharts/api-gateway/**'        
@@ -18,6 +18,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Set BRANCH environment variable
+        run: echo "BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
+        
       - name: Set environment dynamically
         id: set-env
         run: |
@@ -25,8 +28,10 @@ jobs:
             echo "env=prod" >> $GITHUB_OUTPUT
           elif [[ "${BRANCH}" == "qa" ]]; then
             echo "env=qa" >> $GITHUB_OUTPUT
-          else
+          elif [[ "${BRANCH}" == "dev" ]]; then
             echo "env=dev" >> $GITHUB_OUTPUT
+          else
+            echo "No match found for branch"
           fi
         
       - name: Configure AWS Credentials
